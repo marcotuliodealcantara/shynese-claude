@@ -205,7 +205,7 @@ export default function Index() {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">
-            Shineeze Character Flashcards
+            Shynese
           </h1>
           <p className="text-gray-600">
             Master Chinese characters with smart spaced repetition

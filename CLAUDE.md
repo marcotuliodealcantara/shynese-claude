@@ -106,7 +106,7 @@ const categories = [...new Set(characters.map(char => char.category))].sort();
 
 ## Important Notes
 
-- README.md contains git merge conflict markers - the project is "Shineeze Character Flashcards" (Chinese learning app)
+- README.md contains git merge conflict markers - the project is "Shynese" (Chinese learning app)
 - All shadcn/ui components are pre-downloaded and should not be regenerated
 - Use existing components from `@/components/ui` rather than installing new ones
 - Database schema should match the interfaces in `src/lib/storage.ts`
