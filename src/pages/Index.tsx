@@ -3,10 +3,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, Settings, RotateCcw, Trophy, Loader2 } from 'lucide-react';
+import { BookOpen, Settings, RotateCcw, Trophy, Loader2, Folder } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import FlashCard from '@/components/FlashCard';
-import CategoryFilter from '@/components/CategoryFilter';
 import { storage, Character } from '@/lib/storage';
 import { flashcardLogic, StudySession } from '@/lib/flashcard-logic';
 
@@ -34,6 +33,16 @@ export default function Index() {
   const loadCharacters = async () => {
     const allCharacters = await storage.getCharacters();
     setCharacters(allCharacters);
+  };
+
+  const handleCategoryClick = async (category: string) => {
+    setSelectedCategory(category);
+    const studyCharacters = await storage.getStudySession(category);
+    if (studyCharacters.length > 0) {
+      const newSession = flashcardLogic.createSession(studyCharacters);
+      setSession(newSession);
+      setShowResults(false);
+    }
   };
 
   const startStudySession = async () => {
@@ -212,93 +221,58 @@ export default function Index() {
           </p>
         </div>
 
-        {/* Stats overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card>
-            <CardContent className="p-6 text-center">
-              <BookOpen className="w-8 h-8 mx-auto mb-2 text-blue-600" />
-              <div className="text-2xl font-bold">{characters.length}</div>
-              <div className="text-sm text-gray-600">Total Characters</div>
+        {/* Category cards */}
+        {characters.length === 0 ? (
+          <Card className="mb-6 text-center">
+            <CardContent className="py-12">
+              <p className="text-gray-600 mb-4">No characters available to study.</p>
+              <Link to="/manage">
+                <Button>
+                  <Settings className="mr-2" size={20} />
+                  Add Characters
+                </Button>
+              </Link>
             </CardContent>
           </Card>
-          
-          <Card>
-            <CardContent className="p-6 text-center">
-              <Trophy className="w-8 h-8 mx-auto mb-2 text-green-600" />
-              <div className="text-2xl font-bold">
-                {characters.filter(c => c.score > 0).length}
-              </div>
-              <div className="text-sm text-gray-600">Characters Practiced</div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-6 text-center">
-              <Settings className="w-8 h-8 mx-auto mb-2 text-purple-600" />
-              <div className="text-2xl font-bold">{categories.length}</div>
-              <div className="text-sm text-gray-600">Categories</div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Category selection and study controls */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Start Study Session</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <CategoryFilter
-              categories={categories}
-              selectedCategory={selectedCategory}
-              onCategoryChange={setSelectedCategory}
-              characterCounts={characterCounts}
-              showTags={false}
-            />
-            
-            <div className="flex flex-col md:flex-row gap-4">
-              <Button 
-                onClick={startStudySession} 
-                size="lg" 
-                className="w-full md:flex-1"
-                disabled={characters.length === 0}
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              {/* All Categories card */}
+              <Button
+                variant="outline"
+                className="h-auto p-6 flex flex-col items-center gap-2 hover:shadow-lg hover:scale-105 transition-all"
+                onClick={() => handleCategoryClick('all')}
               >
-                <BookOpen className="mr-2" size={20} />
-                Start Study Session
+                <BookOpen className="w-8 h-8 text-blue-600" />
+                <div className="text-lg font-semibold">All Categories</div>
+                <Badge variant="secondary">{characters.length} characters</Badge>
               </Button>
-              <Link to="/manage" className="w-full md:w-auto">
-                <Button variant="outline" size="lg" className="w-full">
+
+              {/* Individual category cards */}
+              {categories.map((category) => (
+                <Button
+                  key={category}
+                  variant="outline"
+                  className="h-auto p-6 flex flex-col items-center gap-2 hover:shadow-lg hover:scale-105 transition-all"
+                  onClick={() => handleCategoryClick(category)}
+                >
+                  <Folder className="w-8 h-8 text-indigo-600" />
+                  <div className="text-lg font-semibold">{category}</div>
+                  <Badge variant="secondary">{characterCounts[category]} characters</Badge>
+                </Button>
+              ))}
+            </div>
+
+            {/* Manage Characters button */}
+            <div className="text-center">
+              <Link to="/manage">
+                <Button variant="outline" size="lg">
                   <Settings className="mr-2" size={20} />
                   Manage Characters
                 </Button>
               </Link>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Quick preview of characters */}
-        {characters.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Characters</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {characters.slice(0, 8).map((character) => (
-                  <div
-                    key={character.id}
-                    className="text-center p-4 bg-white rounded-lg border hover:shadow-md transition-shadow"
-                  >
-                    <div className="text-2xl font-bold mb-1">{character.chinese}</div>
-                    <div className="text-sm text-blue-600 mb-1">{character.pinyin}</div>
-                    <div className="text-xs text-gray-600">{character.english}</div>
-                    <Badge variant="outline" className="mt-2 text-xs">
-                      Score: {character.score}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          </>
         )}
       </div>
     </div>
