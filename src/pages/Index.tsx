@@ -93,7 +93,7 @@ export default function Index() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+      <div className="flex items-center justify-center p-12">
         <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
       </div>
     );
@@ -102,7 +102,7 @@ export default function Index() {
   if (showResults && session) {
     const finalStats = flashcardLogic.getStats(session);
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+      <div className="p-6">
         <div className="max-w-2xl mx-auto">
           <Card className="text-center">
             <CardHeader>
@@ -152,7 +152,7 @@ export default function Index() {
 
   if (session && currentCharacter) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+      <div className="p-6">
         <div className="max-w-2xl mx-auto">
           {/* Progress header */}
           <div className="mb-6">
@@ -209,13 +209,10 @@ export default function Index() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+    <div className="p-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">
-            Shynese
-          </h1>
           <p className="text-gray-600">
             Master Chinese characters with smart spaced repetition
           </p>

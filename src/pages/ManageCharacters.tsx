@@ -107,7 +107,7 @@ export default function ManageCharacters() {
 
   if (showForm) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+      <div className="p-6">
         <div className="max-w-2xl mx-auto">
           <div className="mb-6">
             <Link to="/">
@@ -128,7 +128,7 @@ export default function ManageCharacters() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+    <div className="p-6">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">

@@ -57,7 +57,16 @@ export const storage = {
 
   // Add a new character
   async addCharacter(character: Omit<Character, 'id' | 'score' | 'attempts' | 'correctCount' | 'lastReviewed'>): Promise<Character | null> {
+    // Get current user (must be authenticated)
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      console.error('User must be authenticated to add characters');
+      return null;
+    }
+
     const newCharacter = {
+      user_id: user.id, // Inject user_id for RLS
       chinese: character.chinese,
       pinyin: character.pinyin,
       english: character.english,
@@ -196,21 +205,32 @@ export const storage = {
 
   // Initialize with sample data if empty
   async initializeSampleData(): Promise<void> {
+    // Get current user
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      console.log('No authenticated user, skipping sample data');
+      return;
+    }
+
+    // Check if user already has characters
     const characters = await this.getCharacters();
-    if (characters.length === 0) {
-      const sampleCharacters = [
-        { chinese: '你好', pinyin: 'nǐ hǎo', english: 'hello', category: 'Greetings' },
-        { chinese: '谢谢', pinyin: 'xiè xiè', english: 'thank you', category: 'Greetings' },
-        { chinese: '水', pinyin: 'shuǐ', english: 'water', category: 'Nature' },
-        { chinese: '火', pinyin: 'huǒ', english: 'fire', category: 'Nature' },
-        { chinese: '一', pinyin: 'yī', english: 'one', category: 'Numbers' },
-        { chinese: '二', pinyin: 'èr', english: 'two', category: 'Numbers' },
-        { chinese: '三', pinyin: 'sān', english: 'three', category: 'Numbers' }
-      ];
-      
-      for (const char of sampleCharacters) {
-        await this.addCharacter(char);
-      }
+    if (characters.length > 0) {
+      return; // User already has data
+    }
+
+    const sampleCharacters = [
+      { chinese: '你好', pinyin: 'nǐ hǎo', english: 'hello', category: 'Greetings' },
+      { chinese: '谢谢', pinyin: 'xiè xiè', english: 'thank you', category: 'Greetings' },
+      { chinese: '水', pinyin: 'shuǐ', english: 'water', category: 'Nature' },
+      { chinese: '火', pinyin: 'huǒ', english: 'fire', category: 'Nature' },
+      { chinese: '一', pinyin: 'yī', english: 'one', category: 'Numbers' },
+      { chinese: '二', pinyin: 'èr', english: 'two', category: 'Numbers' },
+      { chinese: '三', pinyin: 'sān', english: 'three', category: 'Numbers' }
+    ];
+
+    for (const char of sampleCharacters) {
+      await this.addCharacter(char);
     }
   },
 
