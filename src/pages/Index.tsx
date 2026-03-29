@@ -3,11 +3,104 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, Settings, RotateCcw, Trophy, Loader2, Folder } from 'lucide-react';
+import {
+  BookOpen,
+  Settings,
+  RotateCcw,
+  Trophy,
+  Loader2,
+  MessageCircle,
+  Trees,
+  Hash,
+  Utensils,
+  Home,
+  Briefcase,
+  Users,
+  Heart,
+  Calendar,
+  MapPin,
+  BookMarked,
+  Smile,
+  Type,
+  Lightbulb,
+  Globe
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
 import FlashCard from '@/components/FlashCard';
 import { storage, Character } from '@/lib/storage';
 import { flashcardLogic, StudySession } from '@/lib/flashcard-logic';
+
+// Helper function to get icon for category
+const getCategoryIcon = (category: string) => {
+  const lowerCategory = category.toLowerCase();
+
+  // Icon mappings with colors
+  const iconMap: Record<string, { Icon: any; color: string }> = {
+    // Greetings & Communication
+    greetings: { Icon: MessageCircle, color: 'text-pink-600' },
+    greet: { Icon: Smile, color: 'text-pink-600' },
+    communication: { Icon: MessageCircle, color: 'text-blue-500' },
+
+    // Nature
+    nature: { Icon: Trees, color: 'text-green-600' },
+    animals: { Icon: Trees, color: 'text-green-700' },
+    plants: { Icon: Trees, color: 'text-emerald-600' },
+
+    // Numbers & Math
+    numbers: { Icon: Hash, color: 'text-purple-600' },
+    math: { Icon: Hash, color: 'text-purple-700' },
+    counting: { Icon: Hash, color: 'text-purple-500' },
+
+    // Food & Dining
+    food: { Icon: Utensils, color: 'text-orange-600' },
+    dining: { Icon: Utensils, color: 'text-orange-700' },
+    restaurant: { Icon: Utensils, color: 'text-orange-500' },
+
+    // Family & People
+    family: { Icon: Users, color: 'text-red-600' },
+    people: { Icon: Users, color: 'text-red-500' },
+    relations: { Icon: Heart, color: 'text-red-600' },
+
+    // Places & Travel
+    places: { Icon: MapPin, color: 'text-blue-600' },
+    travel: { Icon: Globe, color: 'text-cyan-600' },
+    locations: { Icon: MapPin, color: 'text-blue-700' },
+
+    // Home & Daily Life
+    home: { Icon: Home, color: 'text-yellow-700' },
+    house: { Icon: Home, color: 'text-yellow-600' },
+    daily: { Icon: Calendar, color: 'text-teal-600' },
+
+    // Work & Business
+    work: { Icon: Briefcase, color: 'text-gray-700' },
+    business: { Icon: Briefcase, color: 'text-gray-600' },
+    office: { Icon: Briefcase, color: 'text-slate-700' },
+
+    // Learning & Education
+    learning: { Icon: BookMarked, color: 'text-indigo-600' },
+    education: { Icon: BookMarked, color: 'text-indigo-700' },
+    school: { Icon: BookMarked, color: 'text-indigo-500' },
+
+    // Language & Writing
+    words: { Icon: Type, color: 'text-violet-600' },
+    writing: { Icon: Type, color: 'text-violet-700' },
+    language: { Icon: Type, color: 'text-violet-500' },
+
+    // General
+    general: { Icon: Lightbulb, color: 'text-amber-600' },
+    misc: { Icon: Lightbulb, color: 'text-amber-500' },
+  };
+
+  // Try to find a matching icon
+  for (const [key, value] of Object.entries(iconMap)) {
+    if (lowerCategory.includes(key)) {
+      return value;
+    }
+  }
+
+  // Default icon if no match
+  return { Icon: BookMarked, color: 'text-indigo-600' };
+};
 
 export default function Index() {
   const [characters, setCharacters] = useState<Character[]>([]);
@@ -246,18 +339,21 @@ export default function Index() {
               </Button>
 
               {/* Individual category cards */}
-              {categories.map((category) => (
-                <Button
-                  key={category}
-                  variant="outline"
-                  className="h-auto p-6 flex flex-col items-center gap-2 hover:shadow-lg hover:scale-105 transition-all"
-                  onClick={() => handleCategoryClick(category)}
-                >
-                  <Folder className="w-8 h-8 text-indigo-600" />
-                  <div className="text-lg font-semibold">{category}</div>
-                  <Badge variant="secondary">{characterCounts[category]} characters</Badge>
-                </Button>
-              ))}
+              {categories.map((category) => {
+                const { Icon, color } = getCategoryIcon(category);
+                return (
+                  <Button
+                    key={category}
+                    variant="outline"
+                    className="h-auto p-6 flex flex-col items-center gap-2 hover:shadow-lg hover:scale-105 transition-all"
+                    onClick={() => handleCategoryClick(category)}
+                  >
+                    <Icon className={`w-8 h-8 ${color}`} />
+                    <div className="text-lg font-semibold">{category}</div>
+                    <Badge variant="secondary">{characterCounts[category]} characters</Badge>
+                  </Button>
+                );
+              })}
             </div>
 
             {/* Manage Characters button */}
