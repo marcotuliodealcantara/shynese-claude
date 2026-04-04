@@ -355,16 +355,6 @@ export default function Index() {
                 );
               })}
             </div>
-
-            {/* Manage Characters button */}
-            <div className="text-center">
-              <Link to="/manage">
-                <Button variant="outline" size="lg">
-                  <Settings className="mr-2" size={20} />
-                  Manage Characters
-                </Button>
-              </Link>
-            </div>
           </>
         )}
       </div>

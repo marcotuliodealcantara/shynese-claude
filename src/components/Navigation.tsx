@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/lib/auth-context';
-import { User, LogOut } from 'lucide-react';
+import { User, LogOut, Library } from 'lucide-react';
 
 export function Navigation() {
   const { user, signOut } = useAuth();
@@ -18,6 +18,12 @@ export function Navigation() {
         <div className="flex items-center gap-4">
           {user ? (
             <>
+              <Link to="/manage">
+                <Button variant="ghost" size="sm">
+                  <Library className="w-4 h-4 mr-2" />
+                  Characters
+                </Button>
+              </Link>
               <Link to="/account">
                 <Button variant="ghost" size="sm">
                   <User className="w-4 h-4 mr-2" />
