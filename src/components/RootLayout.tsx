@@ -1,4 +1,5 @@
 import { Navigation } from './Navigation';
+import { FloatingAddCharacterButton } from './FloatingAddCharacterButton';
 
 export function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -7,6 +8,7 @@ export function RootLayout({ children }: { children: React.ReactNode }) {
       <div className="pt-4">
         {children}
       </div>
+      <FloatingAddCharacterButton />
     </div>
   );
 }

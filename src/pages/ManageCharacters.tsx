@@ -4,12 +4,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { ArrowLeft, Plus, Pencil, Trash2, Search, Loader2 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import CharacterForm from '@/components/CharacterForm';
 import CategoryFilter from '@/components/CategoryFilter';
 import { storage, Character } from '@/lib/storage';
 
 export default function ManageCharacters() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [characters, setCharacters] = useState<Character[]>([]);
   const [filteredCharacters, setFilteredCharacters] = useState<Character[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -17,6 +18,14 @@ export default function ManageCharacters() {
   const [editingCharacter, setEditingCharacter] = useState<Character | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (searchParams.get('add') === '1') {
+      setShowForm(true);
+      setEditingCharacter(null);
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   useEffect(() => {
     loadCharacters();
