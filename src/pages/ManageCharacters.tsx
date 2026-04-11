@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { ArrowLeft, Plus, Pencil, Trash2, Search, Loader2 } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import CharacterForm from '@/components/CharacterForm';
-import CategoryFilter from '@/components/CategoryFilter';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { storage, Character } from '@/lib/storage';
 
 export default function ManageCharacters() {
@@ -157,33 +157,30 @@ export default function ManageCharacters() {
         </div>
 
         {/* Filters and search */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Filter & Search</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex gap-4 items-end">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    placeholder="Search characters, pinyin, english, or category..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-            </div>
-            
-            <CategoryFilter
-              categories={categories}
-              selectedCategory={selectedCategory}
-              onCategoryChange={setSelectedCategory}
-              characterCounts={characterCounts}
+        <div className="flex flex-col sm:flex-row gap-3 mb-6">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Search characters, pinyin, english..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 min-h-[44px]"
             />
-          </CardContent>
-        </Card>
+          </div>
+          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <SelectTrigger className="w-full sm:w-[180px] min-h-[44px]">
+              <SelectValue placeholder="Category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All ({characters.length})</SelectItem>
+              {categories.map((category) => (
+                <SelectItem key={category} value={category}>
+                  {category} ({characterCounts[category] || 0})
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
         {/* Results summary */}
         <div className="mb-4 text-sm text-gray-600">
