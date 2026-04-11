@@ -111,3 +111,7 @@ const categories = [...new Set(characters.map(char => char.category))].sort();
 - Use existing components from `@/components/ui` rather than installing new ones
 - Database schema should match the interfaces in `src/lib/storage.ts`
 - The app initializes sample data on first load if database is empty
+
+## Skills
+
+- .claude/skills/mobile-first/SKILL.md — Always follow for any UI work
