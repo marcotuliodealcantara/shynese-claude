@@ -23,19 +23,21 @@ import {
   Smile,
   Type,
   Lightbulb,
-  Globe
+  Globe,
+  type LucideIcon
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import FlashCard from '@/components/FlashCard';
+import SessionSizeDialog, { getSessionSizeLevels } from '@/components/SessionSizeDialog';
 import { storage, Character } from '@/lib/storage';
-import { flashcardLogic, StudySession } from '@/lib/flashcard-logic';
+import { flashcardLogic, StudySession, SessionSize } from '@/lib/flashcard-logic';
 
 // Helper function to get icon for category
 const getCategoryIcon = (category: string) => {
   const lowerCategory = category.toLowerCase();
 
   // Icon mappings with colors
-  const iconMap: Record<string, { Icon: any; color: string }> = {
+  const iconMap: Record<string, { Icon: LucideIcon; color: string }> = {
     // Greetings & Communication
     greetings: { Icon: MessageCircle, color: 'text-pink-600' },
     greet: { Icon: Smile, color: 'text-pink-600' },
@@ -108,6 +110,10 @@ export default function Index() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [showResults, setShowResults] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  // Category waiting for the user to pick a session size (dialog open while set)
+  const [pendingCategory, setPendingCategory] = useState<string | null>(null);
+  // Size of the current session, reused by "Study Again"
+  const [sessionSize, setSessionSize] = useState<SessionSize>('all');
 
   useEffect(() => {
     const init = async () => {
@@ -128,9 +134,11 @@ export default function Index() {
     setCharacters(allCharacters);
   };
 
-  const handleCategoryClick = async (category: string) => {
+  const startStudySession = async (category: string, size: SessionSize) => {
     setSelectedCategory(category);
-    const studyCharacters = await storage.getStudySession(category);
+    setSessionSize(size);
+    const candidates = await storage.getStudySession(category);
+    const studyCharacters = flashcardLogic.selectStudyCards(candidates, size);
     if (studyCharacters.length > 0) {
       const newSession = flashcardLogic.createSession(studyCharacters);
       setSession(newSession);
@@ -138,13 +146,21 @@ export default function Index() {
     }
   };
 
-  const startStudySession = async () => {
-    const studyCharacters = await storage.getStudySession(selectedCategory);
-    if (studyCharacters.length > 0) {
-      const newSession = flashcardLogic.createSession(studyCharacters);
-      setSession(newSession);
-      setShowResults(false);
+  const handleCategoryClick = (category: string) => {
+    const total = category === 'all' ? characters.length : characterCounts[category] ?? 0;
+    // With 5 characters or fewer there is nothing to choose: study them all right away.
+    if (getSessionSizeLevels(total).length === 1) {
+      startStudySession(category, 'all');
+      return;
     }
+    setPendingCategory(category);
+  };
+
+  const handleSessionSizeConfirm = (size: SessionSize) => {
+    if (!pendingCategory) return;
+    const category = pendingCategory;
+    setPendingCategory(null);
+    startStudySession(category, size);
   };
 
   const handleAnswer = async (isCorrect: boolean) => {
@@ -228,7 +244,7 @@ export default function Index() {
               </div>
 
               <div className="flex gap-4 justify-center">
-                <Button onClick={startStudySession} size="lg">
+                <Button onClick={() => startStudySession(selectedCategory, sessionSize)} size="lg">
                   Study Again
                 </Button>
                 <Button variant="outline" onClick={resetSession} size="lg">
@@ -358,6 +374,22 @@ export default function Index() {
           </>
         )}
       </div>
+
+      <SessionSizeDialog
+        open={pendingCategory !== null}
+        categoryLabel={pendingCategory === 'all' ? 'All Categories' : pendingCategory ?? ''}
+        total={
+          pendingCategory === 'all'
+            ? characters.length
+            : pendingCategory
+              ? characterCounts[pendingCategory] ?? 0
+              : 0
+        }
+        onOpenChange={(open) => {
+          if (!open) setPendingCategory(null);
+        }}
+        onConfirm={handleSessionSizeConfirm}
+      />
     </div>
   );
 }

@@ -15,25 +15,33 @@ A Chinese character flashcard app with spaced repetition, built with React, Type
 - **State Management**: Zustand
 - **Data Fetching**: TanStack Query
 - **Routing**: React Router v6
-- **Package Manager**: pnpm
+- **Package Manager**: npm (`package-lock.json`)
+- **Node**: 22 (`.nvmrc`; run `nvm use` — the build fails on Node < 20)
+- **Hosting**: Firebase Hosting (project `yici-55751`) as an installable PWA (`vite-plugin-pwa`)
 
 ## Development Commands
 
 ```bash
+# Use the project's Node version
+nvm use
+
 # Install dependencies
-pnpm i
+npm install
 
 # Start dev server
-pnpm run dev
+npm run dev
 
 # Build for production
-pnpm run build
+npm run build
 
 # Preview production build
-pnpm preview
+npm run preview
 
 # Lint code
-pnpm run lint
+npm run lint
+
+# Build and deploy to Firebase Hosting (https://yici-55751.web.app)
+npm run deploy
 ```
 
 ## Architecture
@@ -49,9 +57,10 @@ Characters have: `chinese`, `pinyin`, `english`, `category`, `score`, `attempts`
 
 ### Study Algorithm
 
-Located in `src/lib/flashcard-logic.ts`. Sessions are created with characters sorted by:
-1. Score (ascending) - prioritize unlearned/difficult items
-2. Attempts (descending) - among equal scores, show previously attempted items first
+Located in `flashcardLogic.selectStudyCards` (`src/lib/flashcard-logic.ts`). `storage.getStudySession()` returns every character of the category (no ordering/limit); the selection then draws the session size the user chose (5 / 10 / 20 / all, via `SessionSizeDialog`) with a weighted random sample without repeats, and shuffles the deck:
+1. Score weight `1 / (1 + score - lowestScoreInCategory)²` - weaker items are favored but don't take every slot
+2. Cooldown: items reviewed (`lastReviewed`) in the last 6 hours keep only 15% of their weight, so consecutive rounds bring different items
+No migration involved - it uses the existing `score` and `last_reviewed` columns.
 
 When a user answers correctly, `score` increments by 1. Incorrect answers decrement by 1 (minimum 0).
 
@@ -106,7 +115,7 @@ const categories = [...new Set(characters.map(char => char.category))].sort();
 
 ## Important Notes
 
-- README.md contains git merge conflict markers - the project is "Shynese" (Chinese learning app)
+- The project is "Yici" (一词, "one word") — a Chinese vocabulary-building app (formerly "Shynese")
 - All shadcn/ui components are pre-downloaded and should not be regenerated
 - Use existing components from `@/components/ui` rather than installing new ones
 - Database schema should match the interfaces in `src/lib/storage.ts`

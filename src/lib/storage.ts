@@ -126,25 +126,15 @@ export const storage = {
     }
   },
 
-  // Get characters for study session
+  // Get the candidate characters for a study session (all of the category, or all characters).
+  // Prioritization and the session size are applied by flashcardLogic.selectStudyCards.
   async getStudySession(category?: string): Promise<Character[]> {
-    // Start building the query
     let query = supabase
       .from('characters')
-      .select('*')
-      // Primary sort: Score ascending (0 first). This prioritizes unlearned or hard items.
-      .order('score', { ascending: true })
-      // Secondary sort: Attempts descending. 
-      // Among items with the same score (e.g., 0), this prioritizes ones we've tried and failed 
-      // over ones we haven't seen yet.
-      .order('attempts', { ascending: false });
+      .select('*');
 
-    // Apply category filter if specific category is chosen
     if (category && category !== 'all') {
       query = query.eq('category', category);
-    } else {
-      // If "All Categories" (or undefined), limit to 10 items
-      query = query.limit(10);
     }
 
     const { data, error } = await query;
