@@ -57,9 +57,10 @@ Characters have: `chinese`, `pinyin`, `english`, `category`, `score`, `attempts`
 
 ### Study Algorithm
 
-Located in `src/lib/flashcard-logic.ts`. Sessions are created with characters sorted by:
-1. Score (ascending) - prioritize unlearned/difficult items
-2. Attempts (descending) - among equal scores, show previously attempted items first
+Located in `flashcardLogic.selectStudyCards` (`src/lib/flashcard-logic.ts`). `storage.getStudySession()` returns every character of the category (no ordering/limit); the selection then draws the session size the user chose (5 / 10 / 20 / all, via `SessionSizeDialog`) with a weighted random sample without repeats, and shuffles the deck:
+1. Score weight `1 / (1 + score - lowestScoreInCategory)²` - weaker items are favored but don't take every slot
+2. Cooldown: items reviewed (`lastReviewed`) in the last 6 hours keep only 15% of their weight, so consecutive rounds bring different items
+No migration involved - it uses the existing `score` and `last_reviewed` columns.
 
 When a user answers correctly, `score` increments by 1. Incorrect answers decrement by 1 (minimum 0).
 
