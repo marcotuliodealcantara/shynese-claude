@@ -1,9 +1,9 @@
 ---
 name: mobile-first
-description: Mobile-first responsive UI development for Shynese. Use when building or editing any UI>
+description: Mobile-first responsive UI development for Yici. Use when building or editing any UI>
 ---
 
-# Mobile-First UI — Shynese
+# Mobile-First UI — Yici
 
 ## Core Rule
 **Always design for small screens first, then scale up.**
@@ -39,7 +39,7 @@ Never add desktop styles without first ensuring the mobile layout works.
 - Always add `overflow-hidden` or `overflow-x-hidden` to containers that could cause horizontal scro>
 - Text that might overflow: use `truncate` or `break-words` as appropriate
 
-## Flashcard-Specific Rules (Shynese)
+## Flashcard-Specific Rules (Yici)
 - Flashcard container: full width on mobile (`w-full`), max-width on desktop (`max-w-md mx-auto`)
 - Chinese character display: `text-6xl` minimum on mobile
 - Pinyin text: `text-lg` minimum

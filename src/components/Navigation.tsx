@@ -23,7 +23,7 @@ export function Navigation() {
       <div className="max-w-6xl mx-auto flex justify-between items-center">
         {/* Branding */}
         <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-          Shynese
+          Yici
         </Link>
 
         {/* Desktop nav */}

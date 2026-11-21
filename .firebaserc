@@ -1,0 +1,8 @@
+{
+  "projects": {
+    "default": "yici-55751",
+    "production": "yici-55751"
+  },
+  "targets": {},
+  "etags": {}
+}

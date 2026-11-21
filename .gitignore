@@ -6,3 +6,5 @@ dist
 *.log
 .claude/settings.local.json
 
+.firebase/
+firebase-debug.log

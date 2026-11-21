@@ -1,7 +1,7 @@
 # Implementation Plan: Authenticated User Module
 
 ## Overview
-The Shynese Character Flashcard app must be a multi-user platform using Supabase Auth. This ensures users only see and manage their own flashcards.
+The Yici Character Flashcard app must be a multi-user platform using Supabase Auth. This ensures users only see and manage their own flashcards.
 
 ### 1. Database & Security (Supabase)
 Goal: Secure the characters table and link it to the Auth system.

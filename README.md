@@ -1,6 +1,6 @@
-# Shynese App
+# Yici 一词
 
-A Chinese character flashcard app with spaced repetition, built with React, TypeScript, Vite, and Supabase. Users can study Chinese characters, track progress, and manage their character collection.
+A Chinese vocabulary-building app with spaced repetition, built with React, TypeScript, Vite, and Supabase. Users can study Chinese characters, track progress, and manage their character collection.
 
 ## Technology stack
 

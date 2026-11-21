@@ -1,12 +1,14 @@
 {
-  "name": "shadcnui",
+  "name": "yici",
   "type": "module",
-  "packageManager": "pnpm@8.10.0",
   "scripts": {
     "dev": "vite",
+    "prebuild": "node -e \"if(+process.versions.node.split('.')[0]<20){console.error('\\n✖ Node '+process.version+' é antigo demais. Rode: nvm use (Node 22)\\n');process.exit(1)}\"",
     "build": "vite build",
     "lint": "eslint --quiet ./src",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "npm run build && npx -y firebase-tools@14 deploy --only hosting",
+    "deploy:preview": "npm run build && npx -y firebase-tools@14 hosting:channel:deploy preview --expires 7d"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
@@ -85,6 +87,10 @@
     "tailwindcss": "^3.4.11",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.1",
-    "vite": "^5.4.1"
+    "vite": "^5.4.1",
+    "vite-plugin-pwa": "^0.21.1"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }
