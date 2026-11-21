@@ -3,6 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { CATEGORIES } from '@/lib/categories';
 import { Character } from '@/lib/storage';
 
 interface CharacterFormProps {
@@ -116,13 +118,22 @@ export default function CharacterForm({ character, onSave, onCancel }: Character
 
           <div className="space-y-2">
             <Label htmlFor="category">Category</Label>
-            <Input
-              id="category"
+            <Select
               value={formData.category}
-              onChange={(e) => handleInputChange('category', e.target.value)}
-              placeholder="Greetings"
-              className={errors.category ? 'border-red-500' : ''}
-            />
+              onValueChange={(value) => handleInputChange('category', value)}
+            >
+              <SelectTrigger
+                id="category"
+                className={`w-full min-h-[44px]${errors.category ? ' border-red-500' : ''}`}
+              >
+                <SelectValue placeholder="Select a category" />
+              </SelectTrigger>
+              <SelectContent>
+                {CATEGORIES.map((cat) => (
+                  <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             {errors.category && (
               <p className="text-sm text-red-500">{errors.category}</p>
             )}
