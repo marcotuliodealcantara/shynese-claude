@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/lib/auth-context';
+import { getErrorMessage } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -37,9 +38,9 @@ export default function Account() {
     try {
       await updateProfile(name);
       toast.success('Profile updated successfully');
-    } catch (error: any) {
+    } catch (error) {
       console.error('Profile update error:', error);
-      toast.error(error.message || 'Failed to update profile');
+      toast.error(getErrorMessage(error) || 'Failed to update profile');
     } finally {
       setIsUpdatingProfile(false);
     }
@@ -64,9 +65,9 @@ export default function Account() {
       toast.success('Password updated successfully');
       setNewPassword('');
       setConfirmPassword('');
-    } catch (error: any) {
+    } catch (error) {
       console.error('Password update error:', error);
-      toast.error(error.message || 'Failed to update password');
+      toast.error(getErrorMessage(error) || 'Failed to update password');
     } finally {
       setIsUpdatingPassword(false);
     }
@@ -77,9 +78,9 @@ export default function Account() {
       await deleteAccount();
       toast.success('Account deleted successfully');
       // Redirect handled by auth context
-    } catch (error: any) {
+    } catch (error) {
       console.error('Account deletion error:', error);
-      toast.error(error.message || 'Failed to delete account');
+      toast.error(getErrorMessage(error) || 'Failed to delete account');
     }
   };
 

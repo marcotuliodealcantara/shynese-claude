@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 
 import { useAuth } from '@/lib/auth-context';
 import { migrateOrphanedCharacters } from '@/lib/migration';
+import { getErrorMessage } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -70,16 +71,17 @@ export default function Auth() {
       }
 
       navigate('/');
-    } catch (error: any) {
+    } catch (error) {
       console.error('Signup error:', error);
+      const message = getErrorMessage(error);
 
       // Handle specific Supabase errors
-      if (error.message?.includes('already registered') || error.message?.includes('already exists')) {
+      if (message.includes('already registered') || message.includes('already exists')) {
         toast.error('Email already registered');
-      } else if (error.message?.includes('Password')) {
+      } else if (message.includes('Password')) {
         toast.error('Password must be at least 6 characters');
       } else {
-        toast.error(error.message || 'Failed to create account');
+        toast.error(message || 'Failed to create account');
       }
     } finally {
       setIsLoading(false);
@@ -92,14 +94,15 @@ export default function Auth() {
       await signIn(data.email, data.password);
       toast.success('Welcome back!');
       navigate('/');
-    } catch (error: any) {
+    } catch (error) {
       console.error('Login error:', error);
+      const message = getErrorMessage(error);
 
       // Handle specific Supabase errors
-      if (error.message?.includes('Invalid') || error.message?.includes('credentials')) {
+      if (message.includes('Invalid') || message.includes('credentials')) {
         toast.error('Invalid email or password');
       } else {
-        toast.error(error.message || 'Failed to log in');
+        toast.error(message || 'Failed to log in');
       }
     } finally {
       setIsLoading(false);
