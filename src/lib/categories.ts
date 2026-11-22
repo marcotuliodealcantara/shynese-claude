@@ -10,7 +10,6 @@ export const CATEGORIES = [
   'Expressions',
   'Family',
   'Food',
-  'Greetings',
   'House',
   'Human Body',
   'Language',

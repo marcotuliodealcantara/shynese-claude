@@ -100,6 +100,14 @@ Supabase client is initialized in `src/lib/supabase.ts`. All data operations go 
 4. For each answer, `storage.recordAnswer()` updates the database
 5. Session completes when all cards are answered, showing accuracy stats
 
+### Home Category Mosaic
+
+The home page shows categories as a 2-column Pinterest-style mosaic (`src/components/CategoryMosaic.tsx`):
+- Tile size by ranking of character count (`src/lib/category-mosaic.ts`): top third tall (3:4), middle square (1:1), bottom short (4:3); tiles in alphabetical order, each placed in the shorter column
+- Background images: `src/assets/categories/<slug>.jpg`, slug = lowercase, `&` removed, spaces → `-` (e.g. `numbers-dates.jpg`), loaded automatically via `import.meta.glob` (`src/lib/category-images.ts`); categories without an image get a gradient fallback
+- After adding/replacing an image run `npm run optimize-images` (center-crops to ≤4:3, 1024×768, JPEG q72)
+- Use arbitrary aspect classes (`aspect-[1/1]`): the `@tailwindcss/aspect-ratio` plugin disables named ones like `aspect-square`
+
 ### Category Filtering
 
 Categories are derived dynamically from existing characters, not stored separately. Both Index and ManageCharacters pages compute categories using:

@@ -8,7 +8,8 @@
     "lint": "eslint --quiet ./src",
     "preview": "vite preview",
     "deploy": "npm run build && npx -y firebase-tools@14 deploy --only hosting",
-    "deploy:preview": "npm run build && npx -y firebase-tools@14 hosting:channel:deploy preview --expires 7d"
+    "deploy:preview": "npm run build && npx -y firebase-tools@14 hosting:channel:deploy preview --expires 7d",
+    "optimize-images": "sh scripts/optimize-category-images.sh"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
