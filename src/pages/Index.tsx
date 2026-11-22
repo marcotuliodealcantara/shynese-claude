@@ -1,108 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import {
-  BookOpen,
-  Settings,
-  RotateCcw,
-  Trophy,
-  Loader2,
-  MessageCircle,
-  Trees,
-  Hash,
-  Utensils,
-  Home,
-  Briefcase,
-  Users,
-  Heart,
-  Calendar,
-  MapPin,
-  BookMarked,
-  Smile,
-  Type,
-  Lightbulb,
-  Globe,
-  type LucideIcon
-} from 'lucide-react';
+import { Settings, RotateCcw, Trophy, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import FlashCard from '@/components/FlashCard';
+import CategoryMosaic from '@/components/CategoryMosaic';
 import SessionSizeDialog, { getSessionSizeLevels } from '@/components/SessionSizeDialog';
 import { storage, Character } from '@/lib/storage';
 import { flashcardLogic, StudySession, SessionSize } from '@/lib/flashcard-logic';
-
-// Helper function to get icon for category
-const getCategoryIcon = (category: string) => {
-  const lowerCategory = category.toLowerCase();
-
-  // Icon mappings with colors
-  const iconMap: Record<string, { Icon: LucideIcon; color: string }> = {
-    // Greetings & Communication
-    greetings: { Icon: MessageCircle, color: 'text-pink-600' },
-    greet: { Icon: Smile, color: 'text-pink-600' },
-    communication: { Icon: MessageCircle, color: 'text-blue-500' },
-
-    // Nature
-    nature: { Icon: Trees, color: 'text-green-600' },
-    animals: { Icon: Trees, color: 'text-green-700' },
-    plants: { Icon: Trees, color: 'text-emerald-600' },
-
-    // Numbers & Math
-    numbers: { Icon: Hash, color: 'text-purple-600' },
-    math: { Icon: Hash, color: 'text-purple-700' },
-    counting: { Icon: Hash, color: 'text-purple-500' },
-
-    // Food & Dining
-    food: { Icon: Utensils, color: 'text-orange-600' },
-    dining: { Icon: Utensils, color: 'text-orange-700' },
-    restaurant: { Icon: Utensils, color: 'text-orange-500' },
-
-    // Family & People
-    family: { Icon: Users, color: 'text-red-600' },
-    people: { Icon: Users, color: 'text-red-500' },
-    relations: { Icon: Heart, color: 'text-red-600' },
-
-    // Places & Travel
-    places: { Icon: MapPin, color: 'text-blue-600' },
-    travel: { Icon: Globe, color: 'text-cyan-600' },
-    locations: { Icon: MapPin, color: 'text-blue-700' },
-
-    // Home & Daily Life
-    home: { Icon: Home, color: 'text-yellow-700' },
-    house: { Icon: Home, color: 'text-yellow-600' },
-    daily: { Icon: Calendar, color: 'text-teal-600' },
-
-    // Work & Business
-    work: { Icon: Briefcase, color: 'text-gray-700' },
-    business: { Icon: Briefcase, color: 'text-gray-600' },
-    office: { Icon: Briefcase, color: 'text-slate-700' },
-
-    // Learning & Education
-    learning: { Icon: BookMarked, color: 'text-indigo-600' },
-    education: { Icon: BookMarked, color: 'text-indigo-700' },
-    school: { Icon: BookMarked, color: 'text-indigo-500' },
-
-    // Language & Writing
-    words: { Icon: Type, color: 'text-violet-600' },
-    writing: { Icon: Type, color: 'text-violet-700' },
-    language: { Icon: Type, color: 'text-violet-500' },
-
-    // General
-    general: { Icon: Lightbulb, color: 'text-amber-600' },
-    misc: { Icon: Lightbulb, color: 'text-amber-500' },
-  };
-
-  // Try to find a matching icon
-  for (const [key, value] of Object.entries(iconMap)) {
-    if (lowerCategory.includes(key)) {
-      return value;
-    }
-  }
-
-  // Default icon if no match
-  return { Icon: BookMarked, color: 'text-indigo-600' };
-};
 
 export default function Index() {
   const [characters, setCharacters] = useState<Character[]>([]);
@@ -189,12 +96,14 @@ export default function Index() {
   };
 
   // Derive categories from loaded characters
-  const categories = [...new Set(characters.map(char => char.category))].sort();
-  
-  const characterCounts = categories.reduce((acc, category) => {
-    acc[category] = characters.filter(char => char.category === category).length;
-    return acc;
-  }, {} as Record<string, number>);
+  const characterCounts = useMemo(
+    () =>
+      characters.reduce((acc, char) => {
+        acc[char.category] = (acc[char.category] ?? 0) + 1;
+        return acc;
+      }, {} as Record<string, number>),
+    [characters]
+  );
 
   const currentCharacter = session ? flashcardLogic.getCurrentCharacter(session) : null;
   const stats = session ? flashcardLogic.getStats(session) : null;
@@ -318,12 +227,12 @@ export default function Index() {
   }
 
   return (
-    <div className="p-6">
-      <div className="max-w-4xl mx-auto">
+    <div className="overflow-x-hidden px-4 py-6 md:px-8">
+      <div className="mx-auto w-full max-w-2xl">
         {/* Header */}
-        <div className="text-center mb-8">
-          <p className="text-gray-600">
-            Master Chinese characters with smart spaced repetition
+        <div className="mb-6 text-center">
+          <p className="text-base leading-relaxed text-gray-600">
+            Build your Chinese vocabulary, one word at a time
           </p>
         </div>
 
@@ -341,37 +250,7 @@ export default function Index() {
             </CardContent>
           </Card>
         ) : (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              {/* All Categories card */}
-              <Button
-                variant="outline"
-                className="h-auto p-6 flex flex-col items-center gap-2 hover:shadow-lg hover:scale-105 transition-all"
-                onClick={() => handleCategoryClick('all')}
-              >
-                <BookOpen className="w-8 h-8 text-blue-600" />
-                <div className="text-lg font-semibold">All Categories</div>
-                <Badge variant="secondary">{characters.length} characters</Badge>
-              </Button>
-
-              {/* Individual category cards */}
-              {categories.map((category) => {
-                const { Icon, color } = getCategoryIcon(category);
-                return (
-                  <Button
-                    key={category}
-                    variant="outline"
-                    className="h-auto p-6 flex flex-col items-center gap-2 hover:shadow-lg hover:scale-105 transition-all"
-                    onClick={() => handleCategoryClick(category)}
-                  >
-                    <Icon className={`w-8 h-8 ${color}`} />
-                    <div className="text-lg font-semibold">{category}</div>
-                    <Badge variant="secondary">{characterCounts[category]} characters</Badge>
-                  </Button>
-                );
-              })}
-            </div>
-          </>
+          <CategoryMosaic counts={characterCounts} totalCount={characters.length} onSelect={handleCategoryClick} />
         )}
       </div>
 

@@ -210,8 +210,8 @@ export const storage = {
     }
 
     const sampleCharacters = [
-      { chinese: '你好', pinyin: 'nǐ hǎo', english: 'hello', category: 'Greetings' },
-      { chinese: '谢谢', pinyin: 'xiè xiè', english: 'thank you', category: 'Greetings' },
+      { chinese: '你好', pinyin: 'nǐ hǎo', english: 'hello', category: 'Expressions' },
+      { chinese: '谢谢', pinyin: 'xiè xiè', english: 'thank you', category: 'Expressions' },
       { chinese: '水', pinyin: 'shuǐ', english: 'water', category: 'Nature' },
       { chinese: '火', pinyin: 'huǒ', english: 'fire', category: 'Nature' },
       { chinese: '一', pinyin: 'yī', english: 'one', category: 'Numbers' },
