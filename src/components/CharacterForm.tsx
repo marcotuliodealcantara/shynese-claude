@@ -5,11 +5,11 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CATEGORIES } from '@/lib/categories';
-import { Character } from '@/lib/storage';
+import { Character, type CharacterInput } from '@/lib/storage';
 
 interface CharacterFormProps {
   character?: Character;
-  onSave: (character: Omit<Character, 'id' | 'score' | 'attempts' | 'correctCount' | 'lastReviewed'>) => void;
+  onSave: (character: CharacterInput) => void;
   onCancel: () => void;
 }
 

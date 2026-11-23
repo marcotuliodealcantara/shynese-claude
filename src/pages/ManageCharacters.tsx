@@ -7,7 +7,7 @@ import { ArrowLeft, Plus, Pencil, Trash2, Search, Loader2 } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import CharacterForm from '@/components/CharacterForm';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { storage, Character } from '@/lib/storage';
+import { storage, Character, type CharacterInput } from '@/lib/storage';
 
 export default function ManageCharacters() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -69,7 +69,7 @@ export default function ManageCharacters() {
     setFilteredCharacters(filtered);
   };
 
-  const handleSaveCharacter = async (characterData: Omit<Character, 'id' | 'score' | 'attempts' | 'correctCount' | 'lastReviewed'>) => {
+  const handleSaveCharacter = async (characterData: CharacterInput) => {
     try {
       if (editingCharacter) {
         await storage.updateCharacter(editingCharacter.id, characterData);

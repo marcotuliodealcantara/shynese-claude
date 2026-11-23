@@ -135,6 +135,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw deleteError;
     }
 
+    // Delete study sessions too (the auth user is kept, so ON DELETE CASCADE doesn't fire)
+    const { error: sessionsError } = await supabase
+      .from('study_sessions')
+      .delete()
+      .eq('user_id', currentUser.id);
+
+    if (sessionsError) {
+      throw sessionsError;
+    }
+
     // Sign out (Supabase client SDK doesn't allow self-deletion)
     // User account remains in auth.users but has no data
     await signOut();
