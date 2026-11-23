@@ -10,7 +10,18 @@ export interface Character {
   attempts: number;
   correctCount: number;
   lastReviewed: Date;
+  createdAt: Date;
 }
+
+// Progress of a study session as stored in public.study_sessions
+export interface StudySessionProgress {
+  cardsAnswered: number;
+  correctCount: number;
+  completed: boolean;
+}
+
+// Fields the user types when adding or editing a character
+export type CharacterInput = Pick<Character, 'chinese' | 'pinyin' | 'english' | 'category'>;
 
 // Database row interface matching the Supabase table structure
 interface CharacterRow {
@@ -56,7 +67,7 @@ export const storage = {
   },
 
   // Add a new character
-  async addCharacter(character: Omit<Character, 'id' | 'score' | 'attempts' | 'correctCount' | 'lastReviewed'>): Promise<Character | null> {
+  async addCharacter(character: CharacterInput): Promise<Character | null> {
     // Get current user (must be authenticated)
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -178,6 +189,60 @@ export const storage = {
     }
   },
 
+  // --- Study sessions (table public.study_sessions) ---
+
+  // Create the session record (called on the first answer). Returns its id, or null on failure
+  // (e.g. migration not applied yet) — studying keeps working, the session just isn't counted.
+  async createStudySession(record: StudySessionProgress & { category: string; cardsPlanned: number }): Promise<number | null> {
+    const { data, error } = await supabase
+      .from('study_sessions')
+      .insert({
+        category: record.category === 'all' ? null : record.category,
+        cards_planned: record.cardsPlanned,
+        cards_answered: record.cardsAnswered,
+        correct_count: record.correctCount,
+        completed: record.completed,
+      })
+      .select('id')
+      .single();
+
+    if (error) {
+      console.error('Error creating study session:', error);
+      return null;
+    }
+    return (data as { id: number }).id;
+  },
+
+  async updateStudySession(id: number, progress: StudySessionProgress): Promise<void> {
+    const { error } = await supabase
+      .from('study_sessions')
+      .update({
+        cards_answered: progress.cardsAnswered,
+        correct_count: progress.correctCount,
+        completed: progress.completed,
+        last_answer_at: new Date().toISOString(),
+      })
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error updating study session:', error);
+    }
+  },
+
+  // Start time of every session (newest first) — enough for streaks and weekly counts.
+  async getStudySessionDates(): Promise<Date[]> {
+    const { data, error } = await supabase
+      .from('study_sessions')
+      .select('started_at')
+      .order('started_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching study sessions:', error);
+      return [];
+    }
+    return (data as { started_at: string }[]).map((row) => new Date(row.started_at));
+  },
+
   // Get all unique categories
   async getCategories(): Promise<string[]> {
     const { data, error } = await supabase
@@ -235,7 +300,8 @@ export const storage = {
       score: row.score,
       attempts: row.attempts,
       correctCount: row.correct_count,
-      lastReviewed: new Date(row.last_reviewed)
+      lastReviewed: new Date(row.last_reviewed),
+      createdAt: new Date(row.created_at)
     };
   }
 };

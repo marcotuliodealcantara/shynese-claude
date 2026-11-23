@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -7,9 +7,11 @@ import { Settings, RotateCcw, Trophy, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import FlashCard from '@/components/FlashCard';
 import CategoryMosaic from '@/components/CategoryMosaic';
+import HomeStats from '@/components/HomeStats';
 import SessionSizeDialog, { getSessionSizeLevels } from '@/components/SessionSizeDialog';
 import { storage, Character } from '@/lib/storage';
 import { flashcardLogic, StudySession, SessionSize } from '@/lib/flashcard-logic';
+import { createSessionTracker, type SessionTracker } from '@/lib/session-tracker';
 
 export default function Index() {
   const [characters, setCharacters] = useState<Character[]>([]);
@@ -21,12 +23,16 @@ export default function Index() {
   const [pendingCategory, setPendingCategory] = useState<string | null>(null);
   // Size of the current session, reused by "Study Again"
   const [sessionSize, setSessionSize] = useState<SessionSize>('all');
+  // Start dates of the user's study sessions (for the home stats)
+  const [sessionDates, setSessionDates] = useState<Date[]>([]);
+  // Records the current session in public.study_sessions
+  const sessionTrackerRef = useRef<SessionTracker | null>(null);
 
   useEffect(() => {
     const init = async () => {
       try {
         await storage.initializeSampleData();
-        await loadCharacters();
+        await Promise.all([loadCharacters(), loadSessionDates()]);
       } catch (error) {
         console.error('Failed to initialize:', error);
       } finally {
@@ -41,6 +47,19 @@ export default function Index() {
     setCharacters(allCharacters);
   };
 
+  const loadSessionDates = async () => {
+    setSessionDates(await storage.getStudySessionDates());
+  };
+
+  // Wait for the session's pending writes, then refresh the home stats.
+  const refreshAfterSession = async () => {
+    const tracker = sessionTrackerRef.current;
+    await tracker?.flush();
+    // Only clear it if no new session ("Study Again") started meanwhile
+    if (sessionTrackerRef.current === tracker) sessionTrackerRef.current = null;
+    await Promise.all([loadCharacters(), loadSessionDates()]);
+  };
+
   const startStudySession = async (category: string, size: SessionSize) => {
     setSelectedCategory(category);
     setSessionSize(size);
@@ -48,6 +67,7 @@ export default function Index() {
     const studyCharacters = flashcardLogic.selectStudyCards(candidates, size);
     if (studyCharacters.length > 0) {
       const newSession = flashcardLogic.createSession(studyCharacters);
+      sessionTrackerRef.current = createSessionTracker(category, studyCharacters.length);
       setSession(newSession);
       setShowResults(false);
     }
@@ -82,10 +102,16 @@ export default function Index() {
       const updatedSession = flashcardLogic.recordAnswerAndNext(session, isCorrect);
       setSession(updatedSession);
 
-      // Check if session is complete
-      if (flashcardLogic.isSessionComplete(updatedSession)) {
+      const completed = flashcardLogic.isSessionComplete(updatedSession);
+      sessionTrackerRef.current?.record({
+        cardsAnswered: updatedSession.currentIndex,
+        correctCount: updatedSession.correctAnswers,
+        completed,
+      });
+
+      if (completed) {
         setShowResults(true);
-        await loadCharacters(); // Refresh character data
+        await refreshAfterSession(); // Refresh characters and stats
       }
     }
   };
@@ -93,6 +119,7 @@ export default function Index() {
   const resetSession = () => {
     setSession(null);
     setShowResults(false);
+    void refreshAfterSession(); // Ending mid-session still counts the answered cards
   };
 
   // Derive categories from loaded characters
@@ -229,12 +256,12 @@ export default function Index() {
   return (
     <div className="overflow-x-hidden px-4 py-6 md:px-8">
       <div className="mx-auto w-full max-w-2xl">
-        {/* Header */}
-        <div className="mb-6 text-center">
-          <p className="text-base leading-relaxed text-gray-600">
-            Build your Chinese vocabulary, one word at a time
-          </p>
-        </div>
+        {/* Progress stats + vocabulary growth */}
+        {characters.length > 0 && (
+          <div className="mb-6">
+            <HomeStats characters={characters} sessionDates={sessionDates} />
+          </div>
+        )}
 
         {/* Category cards */}
         {characters.length === 0 ? (

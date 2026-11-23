@@ -100,6 +100,12 @@ Supabase client is initialized in `src/lib/supabase.ts`. All data operations go 
 4. For each answer, `storage.recordAnswer()` updates the database
 5. Session completes when all cards are answered, showing accuracy stats
 
+### Study Sessions & Home Stats
+
+- Table `public.study_sessions` (migration in `supabase/migrations/`, RLS per user): one row per session, created on the first answer by `createSessionTracker` (`src/lib/session-tracker.ts`) and updated after each answer (`cards_answered`, `correct_count`, `completed`). If the table is missing, studying still works and the session simply isn't counted
+- Home stats (`src/components/HomeStats.tsx`, math in `src/lib/stats.ts`, local calendar days): current/best day streak and sessions in the last 7 days (from `study_sessions`), words reviewed in the last 7 days with `attempts >= 2`, and a minimal cumulative vocabulary-growth area chart (by `created_at`; title only, no axis or total, details on hover; lazy-loaded so Recharts stays out of the main bundle) — hidden entirely when no word was added in the last 30 days
+- New migrations go in `supabase/migrations/<timestamp>_<name>.sql` and are run in the Supabase SQL Editor
+
 ### Home Category Mosaic
 
 The home page shows categories as a 2-column Pinterest-style mosaic (`src/components/CategoryMosaic.tsx`):
